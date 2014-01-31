@@ -63,7 +63,7 @@
   exec  { 'juju-bootstrap-openstack':
     command   => "su - vagrant -c \"sudo juju bootstrap --constraints mem=2G\"",
     path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   => Exec['juju-switch-openstack']
+    require   => [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ]
   }
 
   # Loads module of App the Kernel

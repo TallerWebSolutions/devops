@@ -1,0 +1,38 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:             sshd
+# Required-Start:       $remote_fs $syslog
+# Required-Stop:        $remote_fs $syslog
+# Default-Start:        2 3 4 5
+# Default-Stop:         
+# Short-Description:    OpenBSD Secure Shell server
+### END INIT INFO
+
+set -e
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+        log_daemon_msg "Starting Sshuttle" || true
+        if sshuttle -r sages@198.27.90.253 10.0.0.0/24 --daemon; then
+            log_end_msg 0 || true
+        else
+            log_end_msg 1 || true
+        fi
+        ;;
+  stop)
+        if ps -ef|grep -i sshuttle|grep -v grep|awk '{print $2}'|xargs kill -9 $1; then
+            log_end_msg 0 || true
+        else
+            log_end_msg 1 || true
+        fi
+        ;;
+
+  *)
+        log_action_msg "Usage: /etc/init.d/sshutlle {start|stop}" || true
+        exit 1
+esac
+
+exit 0

@@ -1,0 +1,212 @@
+# This is the Juju config file, which you can use to specify multiple environments in which to deploy.
+# By default Juju ships AWS (default), HP Cloud, OpenStack.
+# See https://juju.ubuntu.com/docs for more information
+
+# An environment configuration must always specify at least the following information:
+#
+# - name (to identify the environment)
+# - type (to specify the provider)
+
+# Values in <brackets> below need to be filled in by the user.
+# Optional attributes are shown commented out, with
+# a sample value or a value in <brackets>.
+
+# The default environment is chosen when an environment is not
+# specified using any of the following, in descending order of precedence:
+#   -e or --environment command line parameter.
+#   JUJU_ENV environment variable.
+#   the juju switch command.
+default: amazon
+
+environments:
+    # https://juju.ubuntu.com/docs/config-openstack.html
+    openstack:
+        type: openstack
+        # use-floating-ip specifies whether a floating IP address is required
+        # to give the nodes a public IP address. Some installations assign public IP
+        # addresses by default without requiring a floating IP address.
+        # use-floating-ip: false
+    
+        # use-default-secgroup specifies whether new machine instances should have the "default"
+        # Openstack security group assigned.
+        # use-default-secgroup: false
+    
+        # network specifies the network label or uuid to bring machines up on, in
+        # the case where multiple networks exist. It may be omitted otherwise.
+        # network: <your network label or uuid>
+        # control-bucket: tallerweb
+    
+        # tools-metadata-url specifies the location of the Juju tools and metadata. It defaults to the
+        # global public tools metadata location https://streams.canonical.com/tools.
+        tools-metadata-url: http://198.27.90.253:8080/v1/AUTH_bac488d9a86c40f8abc439df2bb20ede/tallerweb/tools  
+    
+        # image-metadata-url specifies the location of Ubuntu cloud image metadata. It defaults to the
+        # global public image metadata location https://cloud-images.ubuntu.com/releases.
+        image-metadata-url: http://198.27.90.253:8080/v1/AUTH_bac488d9a86c40f8abc439df2bb20ede/tallerweb/images
+    
+        # auth-url defaults to the value of the environment variable OS_AUTH_URL,
+        # but can be specified here.
+        auth-url: http://198.27.90.253:5000/v2.0
+    
+        # tenant-name holds the openstack tenant name. It defaults to
+        # the environment variable OS_TENANT_NAME.
+        tenant-name: DevOps
+    
+        # region holds the openstack region.  It defaults to
+        # the environment variable OS_REGION_NAME.
+        region: RegionOne
+    
+        # The auth-mode, username and password attributes
+        # are used for userpass authentication (the default).
+    
+        # auth-mode holds the authentication mode. For user-password
+        # authentication, auth-mode should be "userpass" and username
+        # and password should be set appropriately; they default to
+        # the environment variables OS_USERNAME and OS_PASSWORD
+         # respectively.
+        auth-mode: userpass
+        username: devops
+        password: devops
+         
+        # For key-pair authentication, auth-mode should  be "keypair"
+        # and access-key and secret-key should be  set appropriately; they default to
+        # the environment variables OS_ACCESS_KEY and OS_SECRET_KEY
+        # respectively.
+        # auth-mode: keypair
+        # access-key: <secret>
+        # secret-key: <secret>
+    
+    # https://juju.ubuntu.com/docs/config-hpcloud.html
+    hpcloud:
+        type: openstack
+        
+        # use-floating-ip specifies whether a floating IP address is required
+        # to give the nodes a public IP address. Some installations assign public IP
+        # addresses by default without requiring a floating IP address.
+        # use-floating-ip: false
+    
+        # use-default-secgroup specifies whether new machine instances should have the "default"
+        # Openstack security group assigned.
+        # use-default-secgroup: false
+    
+        # tenant-name holds the openstack tenant name. In HPCloud, this is 
+        # synonymous with the project-name  It defaults to
+        # the environment variable OS_TENANT_NAME.
+        # tenant-name: <your tenant name>
+        
+        # auth-url holds the keystone url for authentication. 
+        # It defaults to the value of the environment variable OS_AUTH_URL.
+        # auth-url: https://region-a.geo-1.identity.hpcloudsvc.com:35357/v2.0/
+    
+        # region holds the HP Cloud region (e.g. az-1.region-a.geo-1).  
+        # It defaults to the environment variable OS_REGION_NAME.
+        # region: <your region>
+        
+        # auth-mode holds the authentication mode. For user-password
+        # authentication, auth-mode should be "userpass" and username
+        # and password should be set appropriately; they default to
+        # the environment variables OS_USERNAME and OS_PASSWORD
+        # respectively.
+        # auth-mode: userpass
+        # username: <your_username>
+        # password: <your_password>
+        
+        # For key-pair authentication, auth-mode should  be "keypair"
+        # and access-key and secret-key should be  set appropriately; they default to
+        # the environment variables OS_ACCESS_KEY and OS_SECRET_KEY
+        # respectively.
+        # auth-mode: keypair
+        # access-key: <secret>
+        # secret-key: <secret>
+    
+    "null":
+        type: "null"
+        # bootstrap-host holds the host name of the machine where the
+        # bootstrap machine agent will be started.
+        bootstrap-host: somehost.example.com
+        
+        # bootstrap-user specifies the user to authenticate as when
+        # connecting to the bootstrap machine. If defaults to
+        # the current user.
+        # bootstrap-user: joebloggs
+        
+        # storage-listen-ip specifies the IP address that the
+        # bootstrap machine's Juju storage server will listen
+        # on. By default, storage will be served on all
+        # network interfaces.
+        # storage-listen-ip:
+        
+        # storage-port specifes the TCP port that the
+        # bootstrap machine's Juju storage server will listen
+        # on. It defaults to 8040
+        # storage-port: 8040    
+        # storage-auth-key holds the key used to authenticate
+        # to the storage servers. It will become unnecessary to
+        # give this option.
+        storage-auth-key: 38857c685bad09d8c5966e2f9bebfd10
+    
+    # https://juju.ubuntu.com/docs/config-maas.html
+    maas:
+        type: maas
+      
+        # maas-server specifies the location of the MAAS server. It must
+        # specify the base path.
+        maas-server: 'http://192.168.1.1/MAAS/'
+        
+        # maas-oauth holds the OAuth credentials from MAAS.
+        maas-oauth: '<add your OAuth credentials from MAAS here>'
+    
+    # https://juju.ubuntu.com/docs/config-local.html
+    local:
+        type: local
+        # Override the directory that is used for the storage files and database.
+        # The default location is $JUJU_HOME/<ENV>.
+        
+        # $JUJU_HOME defaults to ~/.juju
+        # root-dir: ~/.juju/local
+        
+        # Override the storage port if you have multiple local providers, or if the
+        # default port is used by another program.
+        # storage-port: 8040
+        
+        # Override the shared storage port if you have multiple local providers, or if the
+        # default port is used by another program.
+        # shared-storage-port: 8041
+
+        # Override the network bridge if you have changed the default lxc bridge
+        # network-bridge: lxcbr0
+
+    # https://juju.ubuntu.com/docs/config-aws.html
+    amazon:
+        type: ec2
+        # region specifies the ec2 region. It defaults to us-east-1.
+        # region: us-east-1
+        #
+        # access-key holds the ec2 access key. It defaults to the environment
+        # variable AWS_ACCESS_KEY_ID.
+        # access-key: <secret>
+        #
+        # secret-key holds the ec2 secret key. It defaults to the environment
+        # variable AWS_SECRET_ACCESS_KEY.
+
+
+    # https://juju.ubuntu.com/docs/config-azure.html
+    azure:
+        type: azure
+        # location specifies the place where instances will be started, for
+        # example: West US, North Europe.
+        location: West US
+        # The following attributes specify Windows Azure Management information.
+        # See  http://msdn.microsoft.com/en-us/library/windowsazure
+        # for details.
+        management-subscription-id: <00000000-0000-0000-0000-000000000000>
+        management-certificate-path: /home/me/azure.pem
+        # storage-account-name holds Windows Azure Storage info.
+        storage-account-name: abcdefghijkl
+        # force-image-name overrides the OS image selection to use
+        # a fixed image for all deployments. Most useful for developers.
+        # force-image-name: b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-13_10-amd64-server-DEVELOPMENT-20130713-Juju_ALPHA-en-us-30GB
+        # image-stream chooses a simplestreams stream to select OS images from,
+        # for example daily or released images (or any other stream available on simplestreams).
+        # Leave blank for released images.
+        # image-stream: ""

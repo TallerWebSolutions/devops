@@ -9,40 +9,61 @@
   # Update O.S
   class {'apt':
     always_apt_update => true,
-    require   =>  Exec['repo-juju']
   }
 
-  # Add repository packages JuJu
-  exec { 'repo-juju':
-    command   =>  'add-apt-repository ppa:juju/stable',
-    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/']
+  # Create Dir LXC
+  file  { '/etc/lxc/auto':
+    ensure  =>  directory,
+    require =>  Package['lxc']
+  }
+
+  # Create Dir Bootstrap Openstack
+  file  { '/home/vagrant.tmp':
+    ensure  =>  directory,
+    mode    =>  0755,
+    owner   =>  vagrant,
+    group   =>  vagrant
   }
 
   # Copy of user key for root
   exec  { 'copy-keys':
     command   =>  'cp -pR /home/vagrant/.ssh /root/',
-    require   =>  Package['build-essential', 'vim', 'curl', 'git-core', 'juju-local', 'linux-image-generic-lts-raring', 'linux-headers-generic-lts-raring']
+    require   =>  Package['build-essential', 'vim', 'curl', 'wget', 'git-core', 'linux-image-generic-lts-raring', 'linux-headers-generic-lts-raring']
   }
 
   # Start Juju
   exec  { 'juju-init':
-    command   =>  "sudo su -c \"juju init\"",
-    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    command   =>  "su - vagrant -c \"juju init\"",
+    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
     require   =>  Class['apt']
   }
 
   # Change environment Local
   exec  { 'juju-switch-local':
-    command   => "sudo su -c \"juju switch local\"",
+    command   => "su - vagrant -c \"juju switch local\"",
     path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   => Exec['juju-init']
+    require   => File['/home/vagrant/.juju/environments.yaml']
   }
 
-  # Bootstrap JuJu
+  # Bootstrap JuJu Local
   exec  { 'juju-bootstrap':
-    command   => "sudo su -c \"juju bootstrap\"",
+    command   => "su - vagrant -c \"sudo juju bootstrap\"",
     path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
     require   => Exec['juju-switch-local']
+  }
+
+  # Change environment openstack
+  exec  { 'juju-switch-openstack':
+    command   => "su - vagrant -c \"juju switch openstack\"",
+    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    require   => [ File['/home/vagrant/.juju/environments.yaml'], Exec['juju-bootstrap'] ]
+  }
+
+  # Bootstrap JuJu Opentack
+  exec  { 'juju-bootstrap-openstack':
+    command   => "su - vagrant -c \"sudo juju bootstrap --constraints mem=2G\"",
+    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    require   => Exec['juju-switch-openstack']
   }
 
   # Loads module of App the Kernel
@@ -58,6 +79,7 @@
     path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
   }
 
+  # Add keys Root
   file { '/root/.ssh/id_rsa':
     owner   =>  root,
     group   =>  root,
@@ -80,18 +102,52 @@
     mode    =>  0644,
     ensure  =>  present,
     require =>  Exec['copy-keys']
-  } 
+  }
 
+  # Environment Settings
+  file { '/home/vagrant/.juju/environments.yaml':
+    content =>  template('environments.erb'),
+    owner   =>  vagrant,
+    group   =>  vagrant,
+    mode    =>  0644,
+    ensure  =>  present,
+    require =>  [ Exec['copy-keys'], Class['apt'], Package[juju-local] ]
+  }
+
+  # Init Script Sshuttle
+  file { '/etc/init.d/sshuttle':
+    content =>  template('sshuttle.erb'),
+    owner   =>  root,
+    group   =>  root,
+    mode    =>  0755,
+    ensure  =>  present,
+    require =>  Package[sshuttle]
+  }
+
+  exec { 'add-init-script-sshuttle':
+    command =>  "/usr/bin/sudo /usr/sbin/update-rc.d sshuttle defaults 98 02",
+    require =>  File['/etc/init.d/sshuttle']
+  }
+
+  exec { 'start-sshuttle':
+    command =>  "/etc/init.d/sshuttle start",
+    require =>  File['/etc/init.d/sshuttle']
+  }
+
+  # Install Packages
   package { [
     'build-essential',
     'vim',
     'curl',
     'git-core',
-    'juju-local',
+    'lxc',
     'linux-image-generic-lts-raring',
-    'linux-headers-generic-lts-raring'
+    'linux-headers-generic-lts-raring',
+    'mongodb-server',
+    'juju-local',
+    'wget',
+    'sshuttle'
     ]:
     ensure  => 'installed',
     require =>  Class[apt]
   }
-

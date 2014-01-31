@@ -3,10 +3,10 @@
 
 Vagrant::Config.run do |config|
   config.vm.box = "devops"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
   # Defined IP address using NAT.
-  config.vm.network :hostonly, "10.11.12.13"
+  # config.vm.network :hostonly, "10.11.12.13"
   # config.vm.network :bridged
 
   # Ensures that apt-get is updated before settings puppet
@@ -27,6 +27,6 @@ Vagrant::Config.run do |config|
     # Folder where the module is located in the puppet
     puppet.module_path = "./modules"
 
-    puppet.options = "--verbose"
+    puppet.options = "--templatedir /tmp/vagrant-puppet/manifests --verbose"
   end
 end

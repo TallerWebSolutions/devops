@@ -1,0 +1,4 @@
+# ignore vagrant temporary setting
+vagrant/virtualbox/.vagrant
+.DS_Store
+

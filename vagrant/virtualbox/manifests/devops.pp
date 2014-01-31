@@ -40,30 +40,32 @@
 
   # Change environment Local
   exec  { 'juju-switch-local':
-    command   => "su - vagrant -c \"juju switch local\"",
-    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   => File['/home/vagrant/.juju/environments.yaml']
+    command   =>  "su - vagrant -c \"juju switch local\"",
+    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    require   =>  File['/home/vagrant/.juju/environments.yaml'],
+    timeout   =>  1200
   }
 
   # Bootstrap JuJu Local
   exec  { 'juju-bootstrap':
-    command   => "su - vagrant -c \"sudo juju bootstrap\"",
-    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   => Exec['juju-switch-local']
+    command   =>  "su - vagrant -c \"sudo juju bootstrap\"",
+    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    require   =>  Exec['juju-switch-local']
   }
 
   # Change environment openstack
   exec  { 'juju-switch-openstack':
-    command   => "su - vagrant -c \"juju switch openstack\"",
-    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   => [ File['/home/vagrant/.juju/environments.yaml'], Exec['juju-bootstrap'] ]
+    command   =>  "su - vagrant -c \"juju switch openstack\"",
+    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    require   =>  [ File['/home/vagrant/.juju/environments.yaml'], Exec['juju-bootstrap'] ]
   }
 
   # Bootstrap JuJu Opentack
   exec  { 'juju-bootstrap-openstack':
-    command   => "su - vagrant -c \"sudo juju bootstrap --constraints mem=2G\"",
-    path      => [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   => [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ]
+    command   =>  "su - vagrant -c \"sudo juju bootstrap --constraints mem=2G\"",
+    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+    require   =>  [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ],
+    timeout   =>  2100
   }
 
   # Loads module of App the Kernel

@@ -48,7 +48,7 @@
 
   # Bootstrap JuJu Local
   exec  { 'juju-bootstrap':
-    command   =>  "su - vagrant -c \"sudo juju bootstrap\"",
+    command   =>  "su - vagrant -c \"juju bootstrap\"",
     path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
     require   =>  Exec['juju-switch-local']
   }
@@ -62,7 +62,7 @@
 
   # Bootstrap JuJu Opentack
   exec  { 'juju-bootstrap-openstack':
-    command   =>  "su - vagrant -c \"sudo juju bootstrap --constraints mem=2G\"",
+    command   =>  "su - vagrant -c \"juju bootstrap --constraints mem=2G\"",
     path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
     require   =>  [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ],
     timeout   =>  2100

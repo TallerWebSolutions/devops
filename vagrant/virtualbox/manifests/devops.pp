@@ -117,6 +117,15 @@
     require =>  [ Exec['copy-keys'], Class['apt'], Package[juju-local] ]
   }
 
+  # Ssh Config
+  file { '/etc/ssh/ssh_config':
+    content =>  template('ssh.erb'),
+    owner   =>  root,
+    group   =>  root,
+    mode    =>  0755,
+    ensure  =>  present,
+  }
+
   # Init Script Sshuttle
   file { '/etc/init.d/sshuttle':
     content =>  template('sshuttle.erb'),
@@ -124,7 +133,7 @@
     group   =>  root,
     mode    =>  0755,
     ensure  =>  present,
-    require =>  Package[sshuttle]
+    require =>  [ Package[sshuttle], File['/etc/ssh/ssh_config'] ]
   }
 
   exec { 'add-init-script-sshuttle':

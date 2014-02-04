@@ -28,7 +28,7 @@
   # Copy of user key for root
   exec  { 'copy-keys':
     command   =>  'cp -pR /home/vagrant/.ssh /root/',
-    require   =>  Package['build-essential', 'vim', 'curl', 'wget', 'git-core', 'linux-image-generic-lts-raring', 'linux-headers-generic-lts-raring']
+    require   =>  Package['build-essential', 'vim', 'curl', 'wget', 'git-core' ]
   }
 
   # Start Juju
@@ -50,7 +50,8 @@
   exec  { 'juju-bootstrap':
     command   =>  "su - vagrant -c \"juju bootstrap\"",
     path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   =>  Exec['juju-switch-local']
+    require   =>  Exec['juju-switch-local'],
+    timeout   =>  10000
   }
 
   # Change environment openstack
@@ -65,7 +66,7 @@
     command   =>  "su - vagrant -c \"juju bootstrap --constraints mem=2G\"",
     path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
     require   =>  [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ],
-    timeout   =>  2100
+    timeout   =>  1000000
   }
 
   # Loads module of App the Kernel
@@ -143,8 +144,8 @@
     'curl',
     'git-core',
     'lxc',
-    'linux-image-generic-lts-raring',
-    'linux-headers-generic-lts-raring',
+#    'linux-image-generic-lts-raring',
+#    'linux-headers-generic-lts-raring',
     'mongodb-server',
     'juju-local',
     'wget',

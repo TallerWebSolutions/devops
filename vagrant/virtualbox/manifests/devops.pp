@@ -55,19 +55,19 @@
   }
 
   # Change environment openstack
-  exec  { 'juju-switch-openstack':
-    command   =>  "su - vagrant -c \"juju switch openstack\"",
-    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   =>  [ File['/home/vagrant/.juju/environments.yaml'], Exec['juju-bootstrap'] ]
-  }
+  #exec  { 'juju-switch-openstack':
+  #  command   =>  "su - vagrant -c \"juju switch openstack\"",
+  #  path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+  #  require   =>  [ File['/home/vagrant/.juju/environments.yaml'], Exec['juju-bootstrap'] ]
+  #}
 
   # Bootstrap JuJu Opentack
-  exec  { 'juju-bootstrap-openstack':
-    command   =>  "su - vagrant -c \"juju bootstrap --constraints mem=2G\"",
-    path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
-    require   =>  [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ],
-    timeout   =>  1000000
-  }
+  #exec  { 'juju-bootstrap-openstack':
+  #  command   =>  "su - vagrant -c \"juju bootstrap --constraints mem=2G\"",
+  #  path      =>  [ '/bin/', '/sbin/', '/usr/bin/', '/usr/sbin/'],
+  #  require   =>  [ Exec['juju-switch-openstack'], Exec['start-sshuttle'] ],
+  #  timeout   =>  1000000
+  #}
 
   # Loads module of App the Kernel
   exec  { 'apparmor_parser':

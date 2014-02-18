@@ -1,0 +1,127 @@
+#!/bin/bash
+
+source inc/common
+
+# Compass: The project needs Ruby for Sass and Compass.
+if [[ "$INSTALL_COMPASS" == "True" ]] && [[ ! -f .installed-compass ]]; then
+  juju-log "Install Compass and SASS"
+  apt-get install -y ruby-full rubygems1.8
+  gem install sass -v 3.2.7
+  gem install compass
+  touch .installed-compass
+else
+  juju-log "Uninstall Compass and SASS"
+  apt-get remove -y --purge ruby-full rubygems1.8
+  rm .installed-compass
+fi
+
+# Nginx: Perusion configurations.
+if [[ ! -f .nginx-confs ]] && [[ `cat .nginx-confs` != "perusio" ]]; then
+  juju-log "Configuring Nginx with Perusio Confs."
+  mv /etc/nginx /etc/nginx_default
+  git clone https://github.com/perusio/drupal-with-nginx.git -b D$DRUPAL_VERSION /etc/nginx
+  rm -rf /etc/nginx/sites-enabled; mkdir /etc/nginx/sites-enabled
+  mkdir /var/wwww
+  chown ubuntu:www-data /var/www
+  echo "perusio" > .nginx-confs
+fi
+
+# PHP-FPM: Upstream configuration.
+if [[ "$PHP_FPM_UPSTREAM" == "unix" ]]; then
+  # Uncomment via unix.
+  sed -i "s/^    #include upstream_phpcgi_unix/    include upstream_phpcgi_unix/" /etc/nginx/nginx.conf
+  # Comment via tcp.
+  sed -i "s/^    include upstream_phpcgi_tcp/    #include upstream_phpcgi_tcp/" /etc/nginx/nginx.conf
+else
+  # Uncomment via tcp.
+  sed -i "s/^    #include upstream_phpcgi_tcp/    include upstream_phpcgi_tcp/" /etc/nginx/nginx.conf
+  # Comment via unix.
+  sed -i "s/^    include upstream_phpcgi_unix/   #include upstream_phpcgi_unix/" /etc/nginx/nginx.conf
+fi
+
+# OS staff: Setting Deploy key.
+if is_project_from_git && [[ ! -z $DEPLOY_KEY ]]; then
+  juju-log "Write the deploy ssh key."
+  echo "$DEPLOY_KEY" > /home/ubuntu/.ssh/deploy_key
+  chown ubuntu:ubuntu /home/ubuntu/.ssh/deploy_key
+  chmod 400 /home/ubuntu/.ssh/deploy_key
+
+  if [[ ! -f /usr/bin/git-wrapped ]]; then
+    wget https://raw2.github.com/sebas5384/utils/master/bin/git.sh
+    mv git.sh /usr/bin/git-wrapped
+    chmod +x /usr/bin/git-wrapped
+  fi
+
+elif [[ -f /home/ubuntu/.ssh/deploy_key ]]; then
+  juju-log "Removing ssh deploy key."
+  rm /home/ubuntu/.ssh/deploy_key
+fi
+
+# Drupal project: Needs to install a fresh Drupal project.
+if need_fresh_install; then
+
+  # Drupal: Check if there is a Drupal running.
+  if is_drupal_booting; then
+    # @TODO: Needs to do a Backup.
+    juju-log "Backuping the settings.php files for using with the new project."
+    # 1. backup the settings.*.php files
+    # 2. backup the files somewhere.
+    # 3. Clean and remove for the new project.
+  fi
+
+  # Download the project files including Drupal if not exist.
+  if !is_drupal_downloaded; then
+
+    # From Git.
+    if is_project_from_git; then
+
+      juju-log "Cloning the project from Git repository with branch ."
+      (
+        do_git clone $DEPLOY_SOURCE $project_path
+        cd $project_path
+
+        # Init the Git flow.
+        do_git_flow_init
+
+        juju-log "Checkout to the $REVISION branch."
+        do_git checkout $REVISION
+
+      )
+  
+    # From Drupal.org with drush.
+    else
+      (
+        juju-log "Download a fresh Drupal $DRUPAL_VERSION using a boilerplate as directory skeleton."
+        cd /mnt/tmp
+        # @TODO: This could be an option.
+        wget https://github.com/TallerWebSolutions/drupal-boilerplate/archive/master.tar.gz
+        tar -zxvf master.tar.gz; rm master.tar.gz
+        mv drupal-boilerplate-master $project_path
+
+        juju-log "Downloading Drupal from Drupal.org with drush."
+        if [[ $DRUPAL_VERSION == 8 ]]; then
+          drush dl drupal-8 --dev --drupal-project-rename="drupal.fresh"
+        else
+          drush dl drupal-$DRUPAL_VERSION --drupal-project-rename="drupal.fresh"
+        fi
+
+        juju-log "Move the new Drupal to the docroot."
+        rm -rf $drupal_path
+        mv drupal.fresh $drupal_path
+
+        # Setting some directories.
+        mkdir $drupal_path/sites/all/modules/contrib
+        mkdir $drupal_path/sites/all/themes/contrib
+        mkdir $drupal_path/sites/default/files
+        chmod ug+w $drupal_path/sites/default/files
+      )
+    fi
+  fi
+
+  # Set the right owners.
+  chown -R ubuntu:www-data $project_path
+  
+fi
+
+# Restart all services.
+source hooks/restart

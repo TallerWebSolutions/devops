@@ -1,0 +1,25 @@
+name: drupal
+summary: "Drupal is an open source content management platform"
+maintainer: Sebastian Ferrari <sebas5384@gmail.com>
+description: |
+ This charm will install and setup Drupal optimized to run in the cloud, using the Perusio Nginx and php-fpm configurations.
+ Will place Ngnix and php-fpm configured to scale horizontally with Nginx's reverse proxy
+ and other tools like Drush, Composer, Compass, Sass and Git.
+categories:
+  - applications
+subordinate: false
+provides:
+  website:
+    interface: http
+requires:
+  db:
+    interface: mysql
+  nfs:
+    interface: mount
+    optional: true
+  cache:
+    interface: redis
+    optional: true
+peers:
+  loadbalancer:
+    interface: reversenginx

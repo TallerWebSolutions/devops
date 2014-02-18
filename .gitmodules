@@ -1,0 +1,3 @@
+[submodule "vagrant/virtualbox/lib/vagrant-host-shell"]
+	path = vagrant/virtualbox/lib/vagrant-host-shell
+	url = https://github.com/phinze/vagrant-host-shell

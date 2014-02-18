@@ -1,0 +1,38 @@
+options:
+  drupal-version:
+    type: string
+    default: "7"
+    description: "Drupal version, currently supported 6 and 7"
+  instance-type:
+    default: "prod"
+    type: string
+    description: "Instance type, i.e. dev, qa, stage or prod."
+  drupal-profile:
+    type: string
+    default: "standard"
+    description: "Profile name like standard, minimal or testing."
+  revision:
+    type: string
+    default: "master"
+    description: " Head branch's name when a Git repository is deployed."
+  deploy-source:
+    type: string
+    default: "drupal"
+    description: "From where the Drupal will be downloaded, currently supported a repository Git (Ex. git@host:path/repo.git) or Drush."
+  deploy-key:
+    type: string
+    default: ""
+    description: "A deploy ssh key that is stored on the server and grants access to a repository (Git only)."
+  nginx-port:
+    type: int
+    default: 80
+    description: "The port number where Nginx will listen."
+  php-fpm-upstream:
+    type: string
+    default: "unix"
+    description: "The PHP-FPM upstream, supported unix and tcp."
+  install-compass:
+    type: boolean
+    default: True
+    description: "Install SASS/Compass, so that means ruby-full and rubygems1.8 will be installed."
+

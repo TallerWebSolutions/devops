@@ -41,6 +41,7 @@ fi
 
 # OS staff: Setting Deploy key.
 if is_project_from_git && [[ ! -z $DEPLOY_KEY ]]; then
+  
   juju-log "Write the deploy ssh key."
   echo "$DEPLOY_KEY" > /home/ubuntu/.ssh/deploy_key
   chown ubuntu:ubuntu /home/ubuntu/.ssh/deploy_key
@@ -57,8 +58,10 @@ elif [[ -f /home/ubuntu/.ssh/deploy_key ]]; then
   rm /home/ubuntu/.ssh/deploy_key
 fi
 
-# Drupal project: Needs to install a fresh Drupal project.
-if need_fresh_install; then
+# Drupal project: Needs to install a new fresh Drupal project.
+if need_new_install; then
+
+  echo "$DEPLOY_SOURCE" > .deploy-source
 
   # Drupal: Check if there is a Drupal running.
   if is_drupal_booting; then
@@ -72,21 +75,11 @@ if need_fresh_install; then
   # Download the project files including Drupal if not exist.
   if !is_drupal_downloaded; then
 
-    # From Git.
+    # From Git, already installed.
     if is_project_from_git; then
 
-      juju-log "Cloning the project from Git repository with branch ."
-      (
-        do_git clone $DEPLOY_SOURCE $project_path
-        cd $project_path
-
-        # Init the Git flow.
-        do_git_flow_init
-
-        juju-log "Checkout to the $REVISION branch."
-        do_git checkout $REVISION
-
-      )
+      juju-log "Cloning the project from Git repository $DEPLOY_SOURCE."
+      do_git clone $DEPLOY_SOURCE $project_path
   
     # From Drupal.org with drush.
     else
@@ -109,18 +102,66 @@ if need_fresh_install; then
         rm -rf $drupal_path
         mv drupal.fresh $drupal_path
 
-        # Setting some directories.
-        mkdir $drupal_path/sites/all/modules/contrib
-        mkdir $drupal_path/sites/all/themes/contrib
-        mkdir $drupal_path/sites/default/files
-        chmod ug+w $drupal_path/sites/default/files
+      )
+      
+      # Setting some directories.
+      mkdir $drupal_path/sites/all/modules/contrib
+      mkdir $drupal_path/sites/all/themes/contrib
+
+      (
+        cd $project_path
+        git init
       )
     fi
+
+    juju-log "Configure the Git Flow init."
+    (
+      cd $project_path
+      # Init the Git flow.
+      do_git_flow_init
+    )
   fi
+
+  # Directory for upload files.
+  mkdir $drupal_path/sites/default/files
+  chmod ug+w $drupal_path/sites/default/files
+
+  # Create the Drupal settings.
+  install -o ubuntu -g www-data -m 0644 $drupal_path/sites/default/default.settings.php $config_file_path
 
   # Set the right owners.
   chown -R ubuntu:www-data $project_path
-  
+fi
+
+juju-log "Git checkout to the $DEPLOY_BRANCH branch."
+if [ ! -z $DEPLOY_BRANCH ] && [ -f .deploy-branch || `cat .deploy-branch` != "$DEPLOY_BRANCH" ]
+(
+  cd $project_path
+
+  # Checkout to the deploy branch.
+  git checkout $DEPLOY_BRANCH
+  echo "$DEPLOY_BRANCH" > .deploy-branch
+)
+
+juju-log "Setting this tuning level: $TUNING_LEVEL"
+# Prepare Drupal to store cache into a Redis master server, if is related.
+if [ "$TUNING_LEVEL" == "optimized" ]; then
+  make_optimized
+
+# We need to prepare an NFS mount, because someone is probably
+# going to try to scale out. We also need to vamp up caching.
+elif [ "$TUNING_LEVEL" == "single" ]; then
+  make_single
+
+# Okay, you know what you're doing. You're probably going to
+# use Gluster to stream-line your files, so you don't need to
+# disable anything. We trust you to do what you need to.
+elif [ "$TUNING_LEVEL" == "bare" ]; then
+  make_bare
+
+else
+  juju-log "Not sure about that tuning level."
+  exit 1
 fi
 
 # Restart all services.

@@ -1,5 +1,6 @@
 #!/bin/bash
 
 juju-log "Restarting Services ..."
+
 . hooks/stop
 . hooks/start

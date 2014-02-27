@@ -2,14 +2,14 @@
 
 set -xe
 
-DRUPAL_VERSION = $(config-get drupal-version)
+source inc/common
 
 juju-log "Configure the right APT sources."
 add-apt-repository ppa:charmers/charm-helpers
 apt-get update
 
 juju-log "Installing tools like Wget, Git, Vim."
-apt-get -y install wget git-core git-flow curl vim rsync sysstat mailutils charm-helper-sh mktemp aptitude
+apt-get -y install wget git-core git-flow curl vim rsync sysstat mailutils charm-helper-sh mktemp aptitude nfs-common
 
 modprobe nfs || true
 
@@ -43,7 +43,7 @@ juju-log "Installing Nginx"
 cd /opt/nginx; make && make install
 
 # Ningx: Comment an undisare configuration.
-sed -i "s/ssl_dh_param \/etc\/nginx\/dh_param\.pem\;/\#ssl_dh_param \/etc\/nginx\/dh_param\.pem\;" /etc/nginx/nginx.conf
+sed -i "s/ssl_dh_param \/etc\/nginx\/dh_param\.pem\;/\#ssl_dh_param \/etc\/nginx\/dh_param\.pem\;/" /etc/nginx/nginx.conf
 
 # Nginx: Init script.
 juju-log "Nginx as a service. (service nginx start/stop)"
@@ -78,3 +78,5 @@ sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
 # Drush: install.
 juju-log "Installing Drush 6.* with composer"
 composer global require drush/drush:6.*
+
+juju-log "So, environment is setup. We'll wait for some hooks to fire off before we get all crazy"

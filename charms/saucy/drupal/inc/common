@@ -19,12 +19,12 @@
 #
 
 # Charm configurations.
-DRUPAL_VERSION = $(config-get drupal-version)
-DEPLOY_SOURCE = $(config-get deploy-source)
-DEPLOY_BRANCH = $(config-get deploy-branch)
-DEPLOY_KEY = $(config-get deploy-key)
-INSTALL_COMPASS = $(config-get install-compass)
-PHP_FPM_UPSTREAM = $(config-get php-fpm-upstream)
+DRUPAL_VERSION=$(config-get drupal-version)
+DEPLOY_SOURCE=$(config-get deploy-source)
+DEPLOY_BRANCH=$(config-get deploy-branch)
+DEPLOY_KEY=$(config-get deploy-key)
+INSTALL_COMPASS=$(config-get install-compass)
+PHP_FPM_UPSTREAM=$(config-get php-fpm-upstream)
 
 hostname=`unit-get public-address`
 private_name=`hostname --all-fqdns | cut -f 1 -d ' '`

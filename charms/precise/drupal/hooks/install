@@ -9,7 +9,7 @@ add-apt-repository ppa:charmers/charm-helpers -y
 apt-get update
 
 juju-log "Installing tools like Wget, Git, Vim."
-apt-get -y install wget git-core git-flow curl vim rsync sysstat mailutils charm-helper-sh mktemp aptitude nfs-common
+apt-get -y install wget git-core git-flow curl vim rsync sysstat mailutils charm-helper-sh mktemp aptitude nfs-common make
 
 modprobe nfs || true
 
@@ -23,7 +23,7 @@ juju-log "Download Perusio Confs and configure PHP-FPM via socket."
 git clone https://github.com/perusio/php-fpm-example-config -b unix /opt/php-fpm-example-config
 mv /etc/php5/fpm/php-fpm.conf /etc/php5/fpm/php-fpm.conf_default
 mv /etc/php5/fpm/php.ini /etc/php5/fpm/php.ini_default
-cp /opt/php-fpm-example-config/fpm/php-fpm.conf /etc/php5/fpm/
+cp /opt/php-fpm-example-config/fpm/php5-fpm.conf /etc/php5/fpm/php-fpm.conf
 cp /opt/php-fpm-example-config/fpm/php.ini /etc/php5/fpm/
 cp -a /opt/php-fpm-example-config/fpm/pool.d /etc/php5/fpm/
 
@@ -35,7 +35,7 @@ mv /opt/nginx-1.4.1 /opt/nginx
 mkdir /opt/nginx/modules
 git clone https://github.com/masterzen/nginx-upload-progress-module.git /opt/nginx/modules/nginx-upload-progress-module
 git clone https://github.com/gnosek/nginx-upstream-fair /opt/nginx/modules/nginx-upstream-fair
-git clone https://github.com/FRiCKLE/ngx_cache_purge.git /opt/nginx/modules/ngx_cache_purge.git
+git clone https://github.com/FRiCKLE/ngx_cache_purge.git /opt/nginx/modules/ngx_cache_purge
 /opt/nginx/configure --conf-path=/etc/nginx/nginx.conf --user=www-data --group=www-data --with-http_realip_module --with-http_gzip_static_module --with-http_stub_status_module --with-http_ssl_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --without-mail_pop3_module --without-mail_imap_module --without-http_scgi_module --without-http_uwsgi_module --with-ipv6 --with-debug --add-module=modules/nginx-upload-progress-module --add-module=modules/nginx-upstream-fair --add-module=modules/ngx_cache_purge --with-file-aio --pid-path=/var/run/nginx.pid
 mkdir -p /var/cache/nginx/microcache
 mkdir -p /var/log/nginx

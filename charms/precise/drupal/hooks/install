@@ -73,7 +73,8 @@ usermod -a -G www-data ubuntu
 juju-log "Installing Composer"
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+sed -i '1i export PATH="/home/ubuntu/.composer/vendor/bin:$PATH"' /home/ubuntu/.bashrc
+source /home/ubuntu/.bashrc
 
 # Drush: install.
 juju-log "Installing Drush 6.* with composer"

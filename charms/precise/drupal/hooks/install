@@ -59,7 +59,12 @@ rsync -az /var/cache/nginx/microcache /mnt/cache/nginx/microcache && rm -rf /var
 juju-log "Making /mnt/logs dir ..."
 mkdir -p /mnt/logs
 chmod -R 1777 /mnt/logs
-rsync -az /var/log /mnt/logs && rm -rf /var/log && ln -s /mnt/logs /var/log
+
+# Nginx: Link logs to mounted dir.
+mkdir /mnt/logs/nginx && rsync -az /var/log/nginx /mnt/logs/nginx
+rm -rf /var/log/nginx && ln -s /mnt/logs/nginx /var/log/nginx
+# PHP-FPM: Link logs to mounted dir.
+cp /var/log/php5-fpm.log /mnt/logs/php5-fpm.log && rm -rf /var/log/php5-fpm.log && ln -s /mnt/logs/php5-fpm.log /var/log/php5-fpm.log
 
 juju-log "Making /mnt/tmp dir ..."
 mkdir -p /mnt/tmp
@@ -73,7 +78,8 @@ usermod -a -G www-data ubuntu
 juju-log "Installing Composer"
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-sed -i '1i export PATH="/home/ubuntu/.composer/vendor/bin:$PATH"' /home/ubuntu/.bashrc
+sed -i '1i export HOME="/home/ubuntu"' /home/ubuntu/.bashrc
+sed -i '2i export PATH="/home/ubuntu/.composer/vendor/bin:$PATH"' /home/ubuntu/.bashrc
 source /home/ubuntu/.bashrc
 
 # Drush: install.

@@ -38,11 +38,10 @@ sed -i "s/\${password}/$password/" $config_db_file_path
   sed -i "s/^\$drupal_hash_salt = \'\'\;/\$drupal_hash_salt = \'$drupal_hash_salt\'\;/" $config_file_path
 )
 
-chmod 0644 $config_file_path
-chmod 0644 $config_db_file_path
  
 juju-log "Resetting permissions"
- 
+chmod 0644 $config_file_path
+chmod 0644 $config_db_file_path
 chown -R ubuntu:www-data $project_path
 
 # When project is from an existent Git repository, will try to import the dump form the branch.
@@ -54,6 +53,9 @@ if is_project_from_git && [ -f $project_path/databases/$DEPLOY_BRANCH.dump.sql ]
   )
   drupal_clear_all_cache
 fi
+
+juju-log "Enable the default Nginx configuration"
+ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
 
 . hooks/restart
 

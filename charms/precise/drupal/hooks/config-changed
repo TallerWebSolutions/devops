@@ -2,20 +2,6 @@
 
 source inc/common
 
-# Compass: The project needs Ruby for Sass and Compass.
-if [[ "$INSTALL_COMPASS" == "True" ]] && [[ ! -f .installed-compass ]]; then
-  juju-log "Install Compass and SASS"
-  apt-get install -y ruby-full rubygems1.8
-  gem install sass -v 3.2.7
-  gem install compass
-  touch .installed-compass
-fi
-if [[ "$INSTALL_COMPASS" == "False" ]] && [[ -f .installed-compass ]]; then
-  juju-log "Uninstall Compass and SASS"
-  apt-get remove -y --purge ruby-full rubygems1.8
-  rm .installed-compass
-fi
-
 # Nginx: Perusion configurations.
 if [[ ! -f .nginx-confs && `cat .nginx-confs` != "perusio" ]]; then
   juju-log "Configuring Nginx with Perusio Confs."
@@ -149,6 +135,24 @@ if [[ ! -z $DEPLOY_BRANCH ]] && [[ -f .deploy-branch || `cat .deploy-branch` != 
     git checkout $DEPLOY_BRANCH
     echo "$DEPLOY_BRANCH" > .deploy-branch
   )
+fi
+
+# Compass: The project needs Ruby for Sass and Compass.
+if [[ "$INSTALL_COMPASS" == "True" ]] && [[ ! -f .installed-compass ]]; then
+  juju-log "Install Compass and SASS"
+  apt-get install -y ruby-full rubygems1.8
+  gem install sass -v 3.2.7
+  gem install compass
+
+  # Ignore css and generated sprite images.
+  # @TODO
+
+  touch .installed-compass
+fi
+if [[ "$INSTALL_COMPASS" == "False" ]] && [[ -f .installed-compass ]]; then
+  juju-log "Uninstall Compass and SASS"
+  apt-get remove -y --purge ruby-full rubygems1.8
+  rm .installed-compass
 fi
 
 juju-log "Setting this tuning level: $TUNING_LEVEL"

@@ -1,4 +1,20 @@
 options:
+  site-name:
+    type: string
+    default: "Your fresh new site"
+    description: "The Site Name, used when is a fresh install."
+  admin-username:
+    type: string
+    default: "admin"
+    description: "The default administrator user name."
+  admin-email:
+    type: string
+    default: "admin@localhost.com"
+    description: "The default administrator user name."
+  admin-password:
+    type: string
+    default: "123123"
+    description: "The default administrator password."
   drupal-version:
     type: string
     default: "7"

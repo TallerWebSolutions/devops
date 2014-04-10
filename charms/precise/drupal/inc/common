@@ -21,11 +21,19 @@
 export PATH="/home/ubuntu/.composer/vendor/bin:$PATH"
 
 # Charm configurations.
+SITE_NAME=$(config-get site-name)
+
+ADMIN_USERNAME=$(config-get admin-username)
+ADMIN_EMAIL=$(config-get admin-email)
+ADMIN_PASSWORD=$(config-get admin-password)
+
 DRUPAL_VERSION=$(config-get drupal-version)
 TUNING_LEVEL=$(config-get tuning-level)
+
 DEPLOY_SOURCE=$(config-get deploy-source)
 DEPLOY_BRANCH=$(config-get deploy-branch)
 DEPLOY_KEY=$(config-get deploy-key)
+
 INSTALL_COMPASS=$(config-get install-compass)
 PHP_FPM_UPSTREAM=$(config-get php-fpm-upstream)
 
@@ -38,6 +46,7 @@ drupal_path="$project_path/docroot"
 # drupal_path="/Users/sebas/Sites/sandbox/d7-stable.sb.local"
 # drupal_path="/Users/sebas/Sites/sandbox"
 config_file_path="$drupal_path/sites/default/settings.php"
+config_local_file_path="$drupal_path/sites/default/settings.local.php"
 config_db_file_path="$drupal_path/sites/default/settings.db.php"
 config_cache_file_path="$drupal_path/sites/default/settings.cache.php"
 

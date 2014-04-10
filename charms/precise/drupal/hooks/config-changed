@@ -136,9 +136,6 @@ if need_new_install; then
   mkdir $drupal_path/sites/default/files
   chmod ug+w $drupal_path/sites/default/files
 
-  # Create the Drupal settings.
-  install -o ubuntu -g www-data -m 0644 $drupal_path/sites/default/default.settings.php $config_file_path
-
   # Set the right owners.
   chown -R ubuntu:www-data $project_path
 fi

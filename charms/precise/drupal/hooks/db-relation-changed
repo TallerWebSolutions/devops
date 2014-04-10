@@ -6,7 +6,7 @@ juju-log "We've got a db"
 
 source inc/common
 
-if [ -f "$config_file_path" ] || [ -f "$config_db_file_path" ]; then
+if [ -f "$config_file_path" ] && [ -f "$config_db_file_path" ]; then
   juju-log "Drupal is already setup, just silently going away"
   exit 0
 fi
@@ -16,12 +16,12 @@ database=`relation-get database`
 user=`relation-get user`
 password=`relation-get password`
 
-if [ -z "$database" ] ; then
+if [ -z "$database" ]; then
   exit 0
 fi
 
 # Drupal: Include the new Settings.
-echo -e "\ninclude settings.db.php" >> $config_file_path
+echo -e "\ninclude 'settings.db.php';" >> $config_file_path
 
 # Database info.
 cp files/charm/drupal/settings.db.php $config_db_file_path
@@ -34,11 +34,15 @@ sed -i "s/\${password}/$password/" $config_db_file_path
 # Configuring the Salt hash.
 (
   cd $drupal_path
-  drupal_hash_salt=`drush php-eval "echo drupal_get_hash_salt();"`
-  sed -i "s/^\$drupal_hash_salt = \'\'\;/\$drupal_hash_salt = \'$drupal_hash_salt\'\;/" $config_file_path
+  
+  if is_drupal_booting; then  
+    drupal_hash_salt=`drush php-eval "echo drupal_get_hash_salt();"`
+  else
+    drupal_hash_salt=`drush php-eval "echo drupal_random_key();"`
+  fi
 )
+sed -i "s/^\$drupal_hash_salt = \'\'\;/\$drupal_hash_salt = \'$drupal_hash_salt\'\;/" $config_file_path
 
- 
 juju-log "Resetting permissions"
 chmod 0644 $config_file_path
 chmod 0644 $config_db_file_path

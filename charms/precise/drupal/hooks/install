@@ -42,9 +42,6 @@ mkdir -p /var/log/nginx
 juju-log "Installing Nginx"
 cd /opt/nginx; make && make install
 
-# Ningx: Comment an undisare configuration.
-sed -i "s/ssl_dh_param \/etc\/nginx\/dh_param\.pem\;/\#ssl_dh_param \/etc\/nginx\/dh_param\.pem\;/" /etc/nginx/nginx.conf
-
 # Nginx: Init script.
 juju-log "Nginx as a service. (service nginx start/stop)"
 wget https://raw.github.com/sebas5384/nginx-init-ubuntu/master/nginx -O /etc/init.d/nginx
